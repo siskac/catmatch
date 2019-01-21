@@ -19,20 +19,16 @@ cat_breedTuples = [('maine_coon', 'maine coon'), ('norwegian_forest', 'norwegian
 # sphynx cat - do not look into coat
 # always spotted: egyptian mau
 
-coat_pointTuples = [('seal_point', 'seal point cat'), ('lilac_point', 'lilac point cat'), \
-		    ('blue_point', 'blue point cat'), ('chocolate_point', 'chocolate point cat'), \
-		    ('red_pont', 'red point cat'), ('cream_point', 'cream point cat')]
-
 coat_patternTuples = [('tuxedo', 'tuxedo cat'), ('tortoise', 'tortoise cat'), ('van', 'van cat'), \
 		      ('spotted_tabby', 'spotted tabby cat'), ('mackeral_tabby', 'mackeral tabby cat'), \
 		      ('calico', 'calico cat'), ('harlequin', 'harlequin coat cat'), \
 		      ('snowshoe', 'snowshoe cat'), ('classic_tabby', 'classic tabby cat'), \
-		      ('van', 'van cat'), ('ticked_tabby', 'ticked tabby cat')] 
+		      ('van', 'van cat'), ('ticked_tabby', 'ticked tabby cat'), ('point', 'color point cat')] 
 # point coats will be combo of coat_pointTuples
 
-coat_colorTuples = [('red', 'red color cat'), ('chocolate', 'chocolate color cat'), ('cream', 'cream color cat'), \
-		    ('black', 'black cat'), ('lilac', 'lilac cat'), ('blue', 'blue cat'), ('fawn', 'fawn cat'), \
-		    ('smoke', 'smoke cat'), ('white', 'white coat cat')]
+coat_colorTuples = [('red', 'red color cat'), ('chocolate', 'chocolate coat cat'), ('cream', 'cream color cat'), \
+		    ('black', 'black cat'), ('lilac', 'lilac cat'), ('blue', 'blue coat cat'), ('fawn', 'fawn color cat'), \
+		    ('smoke', 'smoke coat cat'), ('white', 'white coat cat')]
 
 response = google_images_download.googleimagesdownload()
 
@@ -42,7 +38,7 @@ global arguments
 global path
 
 arguments = {'keywords': '', 'limit': 500, 'image_directory': '', 'output_directory': '', 'chromedriver': '/usr/local/bin/chromedriver'}
-path = '/Users/siskac/repos/catmatch/images/'
+path = '/Users/siskac/repos/whatcat/images/'
 
 def catImages(catTuples, type_dir):
 	arguments['output_directory'] = path + type_dir 
@@ -58,3 +54,4 @@ def catImages(catTuples, type_dir):
 catImages(cat_breedTuples, 'breed')
 catImages(coat_pointTuples, 'coat_point')
 catImages(coat_colorTuples, 'coat_color')
+catImages(coat_patternTuples, 'coat_pattern')
