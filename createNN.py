@@ -30,7 +30,7 @@ DECAY = 1e-5
 class SmallerVGGNet:
 # taken from https://www.pyimagesearch.com/2018/05/07/multi-label-classification-with-keras/
 	@staticmethod
-	def build(width, height, depth, classes, finalAct="softmax"):
+	def build(filter_size, width, height, depth, classes, finalAct="softmax"):
 		# initialize the model along with the input shape to be
 		# "channels last" and the channels dimension itself
 		model = Sequential()
@@ -42,36 +42,35 @@ class SmallerVGGNet:
 			inputShape = (depth, height, width)
 			chanDim = 1
 		# CONV => RELU => POOL
-		filterNum = IMAGE_DIMS[0]/3
-		model.add(Conv2D(filterNum, (3, 3), padding="same", input_shape=inputShape))
+		model.add(Conv2D(filter_size, (3, 3), padding="same", input_shape=inputShape))
 		model.add(Activation("relu"))
 		model.add(BatchNormalization(axis=chanDim))
 		model.add(MaxPooling2D(pool_size=(3, 3)))
 		model.add(Dropout(0.25))
 		# (CONV => RELU) * 2 => POOL
-		filterNum = filterNum * 2
-		model.add(Conv2D(filterNum, (3, 3), padding="same"))
+		filter_size = filter_size * 2
+		model.add(Conv2D(filter_size, (3, 3), padding="same"))
 		model.add(Activation("relu"))
 		model.add(BatchNormalization(axis=chanDim))
-		model.add(Conv2D(filterNum, (3, 3), padding="same"))
+		model.add(Conv2D(filter_size, (3, 3), padding="same"))
 		model.add(Activation("relu"))
 		model.add(BatchNormalization(axis=chanDim))
 		model.add(MaxPooling2D(pool_size=(2, 2)))
 		model.add(Dropout(0.25))
 		# (CONV => RELU) * 2 => POOL
-		filterNum = filterNum * 2
-		model.add(Conv2D(filterNum, (3, 3), padding="same"))
+		filter_size = filter_size * 2
+		model.add(Conv2D(filter_size, (3, 3), padding="same"))
 		model.add(Activation("relu"))
 		model.add(BatchNormalization(axis=chanDim))
-		model.add(Conv2D(filterNum, (3, 3), padding="same"))
+		model.add(Conv2D(filter_size, (3, 3), padding="same"))
 		model.add(Activation("relu"))
 		model.add(BatchNormalization(axis=chanDim))
 		model.add(MaxPooling2D(pool_size=(2, 2)))
 		model.add(Dropout(0.25))
 		# first (and only) set of FC => RELU layers
-		filterNum = filterNum * 8
+		filter_size = filter_size * 8
 		model.add(Flatten())
-		model.add(Dense(filterNum))
+		model.add(Dense(filter_size))
 		model.add(Activation("relu"))
 		model.add(BatchNormalization())
 		model.add(Dropout(0.5))
@@ -103,7 +102,7 @@ def runModel(data, labels, model_name):
 	f.close()
 	return model, H, trainX, testX, trainY, testY, lb
 
-def runModel_multiclass(data, labels, model_name):
+def runModel_multiclass(data, labels, model_name, decay, learning_rate, batch_size, image_dim, epochs, filter_size):
         # prepare data and labels
 	mlb = MultiLabelBinarizer() 
        	labels = mlb.fit_transform(labels)
@@ -113,15 +112,15 @@ def runModel_multiclass(data, labels, model_name):
                                  horizontal_flip=True, fill_mode="nearest")
         # run model
         print "training"
-        model = SmallerVGGNet.build(width=IMAGE_DIMS[1], height=IMAGE_DIMS[0], depth=IMAGE_DIMS[2], classes=len(mlb.classes_), finalAct = 'sigmoid')
-        opt = Adam(lr=INIT_LR, decay= DECAY)
+        model = SmallerVGGNet.build(filter_size, width = image_dim, height = image_dim, depth= 3, classes=len(mlb.classes_), finalAct = 'sigmoid')
+        opt = Adam(lr = learning_rate, decay= decay)
         model.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"])
-        H = model.fit_generator(aug.flow(trainX, trainY, batch_size=BS), validation_data=(testX, testY), steps_per_epoch=len(trainX) // BS,
-                                epochs=EPOCHS, verbose=1)
+        H = model.fit_generator(aug.flow(trainX, trainY, batch_size= batch_size), validation_data=(testX, testY), steps_per_epoch=len(trainX) // BS,
+                                epochs= epochs, verbose=1)
         print "saving model to disk"
         model.save(model_name + '_model')
         f = open(model_name + '_labels', "wb")
-        f.write(pickle.dumps(lb))
+        f.write(pickle.dumps(mlb))
         f.close()
         return model, H, trainX, testX, trainY, testY, mlb
 

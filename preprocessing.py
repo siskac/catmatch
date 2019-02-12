@@ -48,7 +48,7 @@ def kerasImages(dir_path):
 	return data, labels
 
 
-def kerasImages_multiclass(dir_path):
+def kerasImages_multiclass(dir_path, imagedim):
 # parse through directories in path and save images to file
         data = []
         labels = []
@@ -61,7 +61,7 @@ def kerasImages_multiclass(dir_path):
                         check.verify()
                         # load image, convert to arry and save
                         image = cv2.imread(dir_path + i)
-                        image = cv2.resize(image, (IMAGE_DIMS[1], IMAGE_DIMS[0]))
+                        image = cv2.resize(image, (imagedim, imagedim))
                 #               image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                 #               image = cv2.Canny(image, 30, 200)
                         image = img_to_array(image)
@@ -79,5 +79,6 @@ def kerasImages_multiclass(dir_path):
         labels = [labels[x] for x in index]
         data = np.array(data, dtype="float") / 255.0
         labels = np.array(labels)
+#	assert(len(labels) == 0, "no images were collected")
         return data, labels
 
